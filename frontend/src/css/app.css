@@ -1,0 +1,17 @@
+/* app global css */
+@font-face {
+  font-family: 'Nanum Brush Script';
+  font-weight: 400;
+  src: url('../fonts/NanumBrushScript-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'ONE-Mobile-Title';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/ONE-Mobile-Title.woff')
+    format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+a {
+  text-decoration: none;
+  color: white;
+}
