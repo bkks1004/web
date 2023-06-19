@@ -7,10 +7,10 @@ const sequelize = new Sequelize(
   dbConfig.password,
   dbConfig
 )
-// const { initModels } = require('./init-models')
+const { initModels } = require('./init-models')
 const db = {}
 
-// Object.assign(db, initModels(sequelize))
+Object.assign(db, initModels(sequelize))
 db.Sequelize = Sequelize
 db.sequelize = sequelize
 
