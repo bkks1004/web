@@ -1,15 +1,15 @@
 var DataTypes = require("sequelize").DataTypes;
 var _sequelizemeta = require("./sequelizemeta");
-var _users = require("./users");
+var _user = require("./user");
 
 function initModels(sequelize) {
   var sequelizemeta = _sequelizemeta(sequelize, DataTypes);
-  var users = _users(sequelize, DataTypes);
+  var user = _user(sequelize, DataTypes);
 
 
   return {
     sequelizemeta,
-    users,
+    user,
   };
 }
 module.exports = initModels;

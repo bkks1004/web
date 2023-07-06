@@ -5,7 +5,7 @@ const express = require('express')
 const path = require('path')
 const cookieParser = require('cookie-parser')
 const logger = require('morgan')
-const bodyParser = require('body-parser') // 이거 이제 안써도 될껄???
+// const bodyParser = require('body-parser') // 이거 이제 안써도 될껄???
 /** 쓴다면 이거 추가해
  * app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -14,7 +14,7 @@ const cors = require('cors')
 const { sequelize } = require('./models/index')
 
 const indexRouter = require('./routes/index')
-const usersRouter = require('./routes/users')
+const userRouter = require('./routes/user')
 
 const app = express()
 
@@ -43,7 +43,7 @@ app.use(express.static(path.join(__dirname, 'public')))
 app.use(cors(corsOptions)) // 설정한 도메인에서 제한 없이 해당 서버에 요청을 보내고 응답을 받을 수 있다.
 
 app.use('/', indexRouter)
-app.use('/users', usersRouter)
+app.use('/user', userRouter)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

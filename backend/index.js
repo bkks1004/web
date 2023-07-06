@@ -13,22 +13,3 @@ connection.connect(err => {
 app.listen(port, () => {
   console.log(`listening at http://localhost:${port}`)
 })
-
-// const mysql = require('mysql') // mysql 모듈 로드
-// const connection = mysql.createConnection({
-//   // mysql 접속 설정
-//   host: '127.0.0.1', //   host: 'localhost',
-//   port: '3306',
-//   user: 'root',
-//   password: 'test123',
-//   database: 'my_db',
-// })
-
-// connection.connect()
-
-// connection.query('SELECT * from users', (error, rows, fields) => {
-//   if (error) throw error
-//   console.log('user info is: ', rows)
-// })
-
-// connection.end()
