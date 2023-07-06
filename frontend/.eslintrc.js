@@ -66,7 +66,7 @@ module.exports = {
     'import/no-unresolved': 'off',
     'import/no-extraneous-dependencies': 'off',
     'import/prefer-default-export': 'off',
-
+    'vue/multi-word-component-names': 'off',
     'prefer-promise-reject-errors': 'off',
 
     // allow debugger during development only
