@@ -16,4 +16,6 @@ router.post(
   // console.log(id, password)
 )
 
+router.post('/email-auth', userController.sendMailAuth)
+
 module.exports = router

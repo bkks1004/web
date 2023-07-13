@@ -14,7 +14,7 @@
       </h5>
       <div class="row basic-row">
         <div class="col">
-          <q-input v-model="id" label="User ID">
+          <q-input v-model="state.id" label="User ID">
             <template #prepend>
               <q-icon name="account_circle" />
             </template>
@@ -23,9 +23,21 @@
       </div>
       <div class="basic-row">
         <div class="col">
-          <q-input label="Password" type="password" hind="Password">
+          <q-input
+            v-model="state.password"
+            label="Password"
+            :type="isPwd ? 'password' : 'text'"
+            hind="Password"
+          >
             <template #prepend>
               <q-icon name="password" />
+            </template>
+            <template #append>
+              <q-icon
+                :name="isPwd ? 'visibility_off' : 'visibility'"
+                class="cursor-pointer"
+                @click="isPwd = !isPwd"
+              />
             </template>
           </q-input>
         </div>
@@ -51,7 +63,8 @@
           @click="join"
         />
       </div>
-      <div class="row basic-row justify-center">
+      <div class="row basic-row justify-between q-mx-sm">
+        <p @click="join">회원가입</p>
         <p>아이디 / 비밀번호 찾기</p>
       </div>
     </q-card>
@@ -62,39 +75,57 @@
 // import { api } from 'src/boot/axios'
 import { axios } from 'src/boot/axios'
 import { ref, defineComponent, reactive } from 'vue'
+import { useRouter } from 'vue-router'
 
 export default defineComponent({
   name: 'LogIn',
   setup() {
-    const id = ref('')
-    const password = ref('')
+    // const id = ref('')
+    // const password = ref('')
+    const router = useRouter()
+    const isPwd = ref(true)
     const state = reactive({
       loggedIn: false,
+      id: null,
+      password: null,
     })
 
-    // await this.$axios.get('http://localhost:3000/users/').then(res => {
+    // await this.$axios.get('http://localhost:3000/user/').then(res => {
     //   console.log(res)
     // })
-    axios.get('web-server/users').then(res => {
+    axios.get('web-server/user').then(res => {
       console.log(res.data)
     })
-    // this.$axios.get('http://localhost:3000/users').then(res => {
+
+    // this.$axios.get('http://localhost:3000/user').then(res => {
     //   console.log(res)
     // })
-    // this.$axios.get('web-server/users').then(res => {
+    // this.$axios.get('web-server/user').then(res => {
     //   console.log(res)
     // })
 
-    function login() {
-      console.log('로그인 구현', id.value, password.value)
+    const login = () => {
+      console.log('로그인 구현', state.id, state.password)
+      const args = {
+        id: state.id,
+        password: state.password,
+      }
+      axios.post('web-server/user', state.id).then(res => {
+        console.log(res)
+      })
+      axios.post('web-server/user', args).then(res => {
+        console.log(res)
+      })
     }
     function join() {
       console.log('회원가입 구현')
+      router.push({ path: '/join' })
     }
 
     return {
-      id,
-      password,
+      // id,
+      // password,
+      isPwd,
       state,
       login,
       join,
@@ -103,10 +134,4 @@ export default defineComponent({
 })
 </script>
 
-<style scoped>
-.basic-row {
-  margin-top: 4px;
-  margin-bottom: 4px;
-  padding: 0px 16px;
-}
-</style>
+<style scoped></style>
