@@ -41,11 +41,18 @@ exports.registUser = async (req, res, next) => {
       email: req.body.email,
     }
 
-    await models.user.create(userObject, { transaction: t })
+    const createdUserInfo = await models.user.create(userObject, {
+      transaction: t,
+    })
 
     await t.commit()
 
-    return regularResponse({}, 'OK', res, HTTP_CODE.CREATED)
+    return regularResponse(
+      { id: createdUserInfo.id },
+      'OK',
+      res,
+      HTTP_CODE.CREATED
+    )
   } catch (err) {
     console.log(err)
     return errorResponse('user.con.createUser', err, res, HTTP_CODE.BAD_REQUEST)
@@ -88,7 +95,7 @@ exports.sendMailAuth = async (req, res, next) => {
       },
       transaction: t,
     })
-    if (checkDuplicateMail.id) {
+    if (checkDuplicateMail?.id) {
       await throwError(
         `해당 메일로 가입된 아이디가 있습니다.\n(ID: ${checkDuplicateMail.id})`,
         HTTP_CODE.INTERNAL_ERROR

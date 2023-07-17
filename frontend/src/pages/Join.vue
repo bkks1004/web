@@ -262,6 +262,7 @@
 <script>
 import { defineComponent, reactive, ref } from 'vue'
 import { axios } from 'src/boot/axios'
+import { useRouter } from 'vue-router'
 
 export default defineComponent({
   name: 'Join',
@@ -290,6 +291,7 @@ export default defineComponent({
     const idRef = ref(null)
     const emailRef = ref(null)
     const openAuthCode = ref(false)
+    const router = useRouter()
 
     const checkDuplicateId = async () => {
       const valid = idRef.value.validate()
@@ -359,7 +361,8 @@ export default defineComponent({
           axios
             .post('web-server/user', data)
             .then(res => {
-              console.log(res)
+              alert(`아이디가 생성되었습니다.\nID: ${res.data.id}`)
+              router.push({ path: '/login' })
             })
             .catch(err => {
               alert(err.response.data.error.message)
