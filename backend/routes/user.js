@@ -10,11 +10,9 @@ router.get('/', (req, res) => {
   // })
 })
 
-router.post(
-  '/',
-  userController.createUser
-  // console.log(id, password)
-)
+router.post('/', userController.registUser)
+
+router.post('/check-id-duplicate', userController.checkDuplicateId)
 
 router.post('/email-auth', userController.sendMailAuth)
 

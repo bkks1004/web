@@ -22,7 +22,7 @@ exports.getUserInfo = async (req, res, next) => {
   }
 }
 
-exports.createUser = async (req, res, next) => {
+exports.registUser = async (req, res, next) => {
   const t = await models.sequelize.transaction()
   try {
     const userId = req.body.id
@@ -52,11 +52,51 @@ exports.createUser = async (req, res, next) => {
   }
 }
 
-exports.sendMailAuth = async (req, res, next) => {
+exports.checkDuplicateId = async (req, res, next) => {
+  const t = await models.sequelize.transaction()
   try {
+    const userId = req.body.id
+    const userInfo = await userModules.getUserInfo(userId, t)
+    if (userInfo) {
+      await throwError(
+        `This ID(${userId}) is already registered`,
+        HTTP_CODE.CONFLICT
+      )
+    }
+    await t.commit()
+
+    return regularResponse({}, 'OK', res, HTTP_CODE.OK)
+  } catch (err) {
+    console.log(err)
+    return errorResponse(
+      'user.con.checkDuplicateId',
+      err,
+      res,
+      HTTP_CODE.BAD_REQUEST
+    )
+  }
+}
+
+exports.sendMailAuth = async (req, res, next) => {
+  const t = await models.sequelize.transaction()
+  try {
+    const email = req.body.email
+    const checkDuplicateMail = await models.user.findOne({
+      attributes: ['id'],
+      where: {
+        email,
+      },
+      transaction: t,
+    })
+    if (checkDuplicateMail.id) {
+      await throwError(
+        `해당 메일로 가입된 아이디가 있습니다.\n(ID: ${checkDuplicateMail.id})`,
+        HTTP_CODE.INTERNAL_ERROR
+      )
+    }
     const hashedValue = crypto.randomBytes(82).toString('hex').substr(24, 6)
     const mailParams = {
-      to: req.body.mail,
+      to: email,
       subject: '회원가입 인증 메일',
       // text: '여기에다가 인증 번호 적자', // html이 있으면 text는 안 나옴
       html:
@@ -71,6 +111,7 @@ exports.sendMailAuth = async (req, res, next) => {
         '</div>',
     }
     mailManager.sendMail(mailParams)
+    await t.commit()
 
     return regularResponse({ authCode: hashedValue }, 'OK', res, HTTP_CODE.OK)
   } catch (err) {
