@@ -66,7 +66,7 @@
         />
       </div>
       <div class="row basic-row justify-between q-mx-sm">
-        <p @click="join">회원가입</p>
+        <p style="cursor: pointer" @click="join">회원가입</p>
         <p>아이디 / 비밀번호 찾기</p>
       </div>
     </q-card>
