@@ -28,6 +28,8 @@
             label="Password"
             :type="isPwd ? 'password' : 'text'"
             hind="Password"
+            :rules="[val => !!val || '비밀번호를 입력해주세요.']"
+            lazy-rules
           >
             <template #prepend>
               <q-icon name="password" />
