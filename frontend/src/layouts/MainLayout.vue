@@ -8,7 +8,11 @@
           </q-avatar>
           무얼 만들까??
         </q-toolbar-title>
-        <div>
+        <div v-if="userName">
+          안녕하세요. {{ userName }}님 │
+          <span style="cursor: pointer" @click="logOut">로그아웃</span>
+        </div>
+        <div v-else>
           <router-link to="/login">로그인</router-link>
           │
           <router-link to="/join">회원가입</router-link>
@@ -81,7 +85,8 @@
 </template> -->
 
 <script>
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, computed } from 'vue'
+import { useUsersStore } from '../stores/user-store'
 
 /* import EssentialLink from 'components/EssentialLink.vue';
 
@@ -140,6 +145,15 @@ export default defineComponent({
   setup() {
     // const leftDrawerOpen = ref(false);
     const rightDrawerOpen = ref(false)
+    const userStore = useUsersStore()
+
+    const userName = computed(() => userStore.userName)
+
+    const logOut = () => {
+      userStore.accessToken = null
+      userStore.refreshToken = null
+      userStore.userName = null
+    }
     return {
       // essentialLinks: linksList,
       // leftDrawerOpen,
@@ -148,6 +162,9 @@ export default defineComponent({
         // leftDrawerOpen.value = !leftDrawerOpen.value;
         rightDrawerOpen.value = !rightDrawerOpen.value
       },
+      userName,
+      userStore,
+      logOut,
     }
   },
 })
