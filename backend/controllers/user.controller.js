@@ -9,6 +9,7 @@ const crypto = require('crypto')
 const bcrypt = require('bcrypt')
 const authConfig = require('../config/auth.json')
 const BCRYPT_ROUND = authConfig.bcryptSetting.round
+const authManager = require('../modules/managers/authManager')
 const mailManager = require('../modules/managers/mailManager')
 const userModules = require('../modules/user')
 
@@ -56,6 +57,43 @@ exports.registUser = async (req, res, next) => {
   } catch (err) {
     console.log(err)
     return errorResponse('user.con.createUser', err, res, HTTP_CODE.BAD_REQUEST)
+  }
+}
+
+exports.login = async (req, res, next) => {
+  const t = await models.sequelize.transaction()
+  try {
+    const { id, password } = req.body
+    const userInfo = await userModules.getUserInfo(id, t)
+
+    if (!userInfo) {
+      await throwError(
+        '등록된 아이디가 없습니다.\n회원가입을 해주세요.',
+        HTTP_CODE.NOT_FOUND
+      )
+    }
+    if (!bcrypt.compareSync(password, userInfo.password)) {
+      await throwError('비밀번호가 일치하지 않습니다.', HTTP_CODE.FORBIDDEN)
+    }
+    const signObj = {
+      id,
+    }
+    const accessToken = authManager.createAccessToken(signObj)
+    const refreshToken = authManager.createRefreshToken(signObj)
+
+    await userModules.updateUserInfo({ refresh_token: refreshToken }, id, t)
+
+    await t.commit()
+
+    return regularResponse(
+      { accessToken, refreshToken },
+      'OK',
+      res,
+      HTTP_CODE.OK
+    )
+  } catch (err) {
+    console.log(err)
+    return errorResponse('user.con.login', err, res, HTTP_CODE.BAD_REQUEST)
   }
 }
 

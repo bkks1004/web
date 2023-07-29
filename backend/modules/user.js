@@ -4,6 +4,7 @@ exports.getUserInfo = async (userId, t) => {
   return await models.user.findOne({
     attributes: [
       'id',
+      'password',
       'email',
       'name',
       'sex',
@@ -17,4 +18,16 @@ exports.getUserInfo = async (userId, t) => {
     },
     transaction: t,
   })
+}
+
+exports.updateUserInfo = async (updateAttributes, id, t) => {
+  await models.user.update(
+    updateAttributes,
+    {
+      where: {
+        id,
+      },
+    },
+    { transaction: t }
+  )
 }

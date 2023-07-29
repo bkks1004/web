@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const userController = require('../controllers/user.controller')
-
+// const authJWT = require('../middlewares/auth') // 각 router에게 넣어주기
 router.get('/', (req, res) => {
   res.send('Hello!!! users')
   // res.send({
@@ -11,6 +11,8 @@ router.get('/', (req, res) => {
 })
 
 router.post('/', userController.registUser)
+
+router.post('/login', userController.login)
 
 router.post('/check-id-duplicate', userController.checkDuplicateId)
 
