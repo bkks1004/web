@@ -29,7 +29,7 @@ exports.registUser = async (req, res, next) => {
     const userId = req.body.id
     const userInfo = await userModules.getUserInfo(userId, t)
     if (userInfo) {
-      await throwError(userId + ' is already registered', HTTP_CODE.CONFLICT)
+      await throwError('이미 등록된 아이디입니다.', HTTP_CODE.CONFLICT)
     }
     const userObject = {
       id: userId,
@@ -103,10 +103,7 @@ exports.checkDuplicateId = async (req, res, next) => {
     const userId = req.body.id
     const userInfo = await userModules.getUserInfo(userId, t)
     if (userInfo) {
-      await throwError(
-        `This ID(${userId}) is already registered`,
-        HTTP_CODE.CONFLICT
-      )
+      await throwError('이미 등록된 아이디입니다.', HTTP_CODE.CONFLICT)
     }
     await t.commit()
 
