@@ -74,10 +74,9 @@
 </template>
 
 <script>
-// import { api } from 'src/boot/axios'
-import { axios } from 'src/boot/axios'
 import { ref, defineComponent, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import { useUsersStore } from '../stores/user-store'
 
 export default defineComponent({
   name: 'LogIn',
@@ -91,33 +90,20 @@ export default defineComponent({
       id: null,
       password: null,
     })
-
-    // await this.$axios.get('http://localhost:3000/user/').then(res => {
-    //   console.log(res)
-    // })
-    axios.get('web-server/user').then(res => {
-      console.log(res.data)
-    })
-
-    // this.$axios.get('http://localhost:3000/user').then(res => {
-    //   console.log(res)
-    // })
-    // this.$axios.get('web-server/user').then(res => {
-    //   console.log(res)
-    // })
-
-    const login = () => {
-      console.log('로그인 구현', state.id, state.password)
-      const args = {
-        id: state.id,
-        password: state.password,
+    const userStore = useUsersStore()
+    const login = async () => {
+      try {
+        const loginData = {
+          id: state.id,
+          password: state.password,
+        }
+        await userStore.login(loginData)
+        console.log('accessToken', userStore.accessToken)
+        console.log('refreshToken', userStore.refreshToken)
+        router.push({ path: '/' })
+      } catch (error) {
+        alert(error.message)
       }
-      axios.post('web-server/user', state.id).then(res => {
-        console.log(res)
-      })
-      axios.post('web-server/user', args).then(res => {
-        console.log(res)
-      })
     }
     function join() {
       console.log('회원가입 구현')

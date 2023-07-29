@@ -86,7 +86,7 @@ exports.login = async (req, res, next) => {
     await t.commit()
 
     return regularResponse(
-      { accessToken, refreshToken },
+      { accessToken, refreshToken, userName: userInfo.name },
       'OK',
       res,
       HTTP_CODE.OK
