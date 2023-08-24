@@ -92,18 +92,15 @@ export default defineComponent({
     })
     const userStore = useUsersStore()
     const login = async () => {
-      try {
-        const loginData = {
-          id: state.id,
-          password: state.password,
-        }
-        await userStore.login(loginData)
-        console.log('accessToken', userStore.accessToken)
-        console.log('refreshToken', userStore.refreshToken)
-        router.push({ path: '/' })
-      } catch (error) {
-        alert(error.message)
+      const loginData = {
+        id: state.id,
+        password: state.password,
       }
+      await userStore.login(loginData)
+      console.log('accessToken', userStore.accessToken)
+      console.log('refreshToken', userStore.refreshToken)
+
+      if (userStore.accessToken) router.push({ path: '/' })
     }
     function join() {
       console.log('회원가입 구현')

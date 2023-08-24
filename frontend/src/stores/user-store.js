@@ -13,7 +13,7 @@ export const useUsersStore = defineStore('users', {
   actions: {
     async login(loginData) {
       try {
-        axios
+        await axios
           .post('web-server/user/login', loginData)
           .then(res => {
             console.log(res)
