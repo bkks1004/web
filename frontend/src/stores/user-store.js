@@ -16,7 +16,6 @@ export const useUsersStore = defineStore('users', {
         await axios
           .post('web-server/user/login', loginData)
           .then(res => {
-            console.log(res)
             this.accessToken = res.data.accessToken
             this.refreshToken = res.data.refreshToken
             this.userName = res.data.userName

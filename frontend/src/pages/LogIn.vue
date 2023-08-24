@@ -81,8 +81,6 @@ import { useUsersStore } from '../stores/user-store'
 export default defineComponent({
   name: 'LogIn',
   setup() {
-    // const id = ref('')
-    // const password = ref('')
     const router = useRouter()
     const isPwd = ref(true)
     const state = reactive({
@@ -97,19 +95,14 @@ export default defineComponent({
         password: state.password,
       }
       await userStore.login(loginData)
-      console.log('accessToken', userStore.accessToken)
-      console.log('refreshToken', userStore.refreshToken)
 
       if (userStore.accessToken) router.push({ path: '/' })
     }
     function join() {
-      console.log('회원가입 구현')
       router.push({ path: '/join' })
     }
 
     return {
-      // id,
-      // password,
       isPwd,
       state,
       login,

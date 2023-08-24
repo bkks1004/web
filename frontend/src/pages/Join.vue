@@ -252,7 +252,6 @@
               @click="registUser"
             />
           </div>
-          <!-- <q-btn @click="registUser">test</q-btn> -->
         </div>
       </q-form>
     </q-card>
@@ -412,18 +411,9 @@ export default defineComponent({
         )
       }
     }
-
-    // const test = () => {
-    //   console.log('data', data)
-    //   axios.post('web-server/user', data).then(res => {
-    //     console.log(res)
-    //   })
-    // }
     return {
       data,
       etcData,
-      // test,
-      // sendMailAuthCode,
       isPwd: ref(true),
       isPwdConfirm: ref(true),
       idRef,

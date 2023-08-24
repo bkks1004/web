@@ -13,16 +13,6 @@ const authManager = require('../modules/managers/authManager')
 const mailManager = require('../modules/managers/mailManager')
 const userModules = require('../modules/user')
 
-exports.getUserInfo = async (req, res, next) => {
-  // const t = await db.transaction()
-  try {
-    // await t.commit()
-    return res.status(200)
-  } catch (err) {
-    console.log(err)
-  }
-}
-
 exports.registUser = async (req, res, next) => {
   const t = await models.sequelize.transaction()
   try {
@@ -92,7 +82,6 @@ exports.login = async (req, res, next) => {
       HTTP_CODE.OK
     )
   } catch (err) {
-    console.log(err)
     return errorResponse('user.con.login', err, res, HTTP_CODE.BAD_REQUEST)
   }
 }
@@ -109,7 +98,6 @@ exports.checkDuplicateId = async (req, res, next) => {
 
     return regularResponse({}, 'OK', res, HTTP_CODE.OK)
   } catch (err) {
-    console.log(err)
     return errorResponse(
       'user.con.checkDuplicateId',
       err,
@@ -157,7 +145,6 @@ exports.sendMailAuth = async (req, res, next) => {
 
     return regularResponse({ authCode: hashedValue }, 'OK', res, HTTP_CODE.OK)
   } catch (err) {
-    console.log(err)
     return errorResponse('user.con.createUser', err, res, HTTP_CODE.BAD_REQUEST)
   }
 }
