@@ -69,6 +69,13 @@
         <p style="cursor: pointer" @click="join">회원가입</p>
         <p>아이디 / 비밀번호 찾기</p>
       </div>
+      <div class="basic-row justify-center text-center">
+        <img
+          src="../assets/naver-logo-button.png"
+          width="140"
+          @click="naverLogin"
+        />
+      </div>
     </q-card>
   </q-page>
 </template>
@@ -87,6 +94,9 @@ export default defineComponent({
       loggedIn: false,
       id: null,
       password: null,
+      naverClientId: 'ydDzQxlGNx737EQ1cQIe',
+      callbackUrl: 'http://localhost:9000/login/naver',
+      state: 'test',
     })
     const userStore = useUsersStore()
     const login = async () => {
@@ -102,11 +112,17 @@ export default defineComponent({
       router.push({ path: '/join' })
     }
 
+    const naverLogin = () => {
+      const url = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${state.naverClientId}&state=${state.state}&redirect_uri=${state.callbackUrl}`
+      window.location.href = url
+    }
+
     return {
       isPwd,
       state,
       login,
       join,
+      naverLogin,
     }
   },
 })

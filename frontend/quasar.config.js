@@ -54,7 +54,7 @@ module.exports = configure((/* ctx */) => ({
       node: 'node16',
     },
 
-    vueRouterMode: 'hash', // available values: 'hash', 'history'
+    vueRouterMode: 'history', // available values: 'hash', 'history'
     // vueRouterBase,
     // vueDevtools,
     // vueOptionsAPI: false,
@@ -92,6 +92,16 @@ module.exports = configure((/* ctx */) => ({
         target: 'http://localhost:3000',
         changeOrigin: true,
         rewrite: path => path.replace(/^\/web-server/, ''),
+      },
+      '/oauth2.0': {
+        target: 'https://nid.naver.com/',
+        changeOrigin: true,
+        logLevel: 'debug',
+      },
+      '/v1': {
+        target: 'https://openapi.naver.com/',
+        changeOrigin: true,
+        logLevel: 'debug',
       },
     },
   },

@@ -17,6 +17,10 @@ const routes = [
         path: '',
         component: () => import('pages/LogIn.vue'),
       },
+      {
+        path: 'naver',
+        component: () => import('pages/LogInNaver.vue'),
+      },
     ],
   },
   {
