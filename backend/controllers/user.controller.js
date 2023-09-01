@@ -46,7 +46,48 @@ exports.registUser = async (req, res, next) => {
     )
   } catch (err) {
     console.log(err)
-    return errorResponse('user.con.createUser', err, res, HTTP_CODE.BAD_REQUEST)
+    return errorResponse('user.con.registUser', err, res, HTTP_CODE.BAD_REQUEST)
+  }
+}
+
+exports.registSnsUser = async (req, res) => {
+  const t = await models.sequelize.transaction()
+  try {
+    const checkDuplicateMail = await userModules.getUserIdFromEmail(
+      req.body.email,
+      t
+    )
+    let createdUserInfo
+    if (!checkDuplicateMail.id) {
+      const userObject = {
+        id: req.body.id,
+        name: req.body.name,
+        birthday: req.body.birthday.substr(5),
+        year_of_birth: req.body.birthday.substr(0, 4),
+        sex: req.body.sex,
+        phone_number: req.body.phoneNumber,
+        email: req.body.email,
+      }
+
+      createdUserInfo = await models.user.create(userObject, {
+        transaction: t,
+      })
+    } else {
+      createdUserInfo = await userModules.getUserIdFromEmail(email, t)
+    }
+    await userModules.createSnsUserInfo(createdUserInfo.id, req.body.snsType, t)
+
+    await t.commit()
+
+    return regularResponse({}, 'OK', res, HTTP_CODE.CREATED)
+  } catch (err) {
+    console.log(err)
+    return errorResponse(
+      'user.con.registSnsUser',
+      err,
+      res,
+      HTTP_CODE.BAD_REQUEST
+    )
   }
 }
 
@@ -107,21 +148,32 @@ exports.checkDuplicateId = async (req, res, next) => {
   }
 }
 
+exports.checkSnsId = async (req, res, next) => {
+  const t = await models.sequelize.transaction()
+  try {
+    const snsInfo = await userModules.getSnsUserInfo(
+      req.query.id,
+      req.query.snsType,
+      t
+    )
+    await t.commit()
+
+    if (snsInfo) return regularResponse({ snsInfo }, 'exist', res, HTTP_CODE.OK)
+    else return regularResponse({}, 'not exsit', res, HTTP_CODE.OK)
+  } catch (err) {
+    return errorResponse('user.con.checkSnsId', err, res, HTTP_CODE.BAD_REQUEST)
+  }
+}
+
 exports.sendMailAuth = async (req, res, next) => {
   const t = await models.sequelize.transaction()
   try {
     const email = req.body.email
-    const checkDuplicateMail = await models.user.findOne({
-      attributes: ['id'],
-      where: {
-        email,
-      },
-      transaction: t,
-    })
+    const checkDuplicateMail = await userModules.getUserIdFromEmail(email, t)
     if (checkDuplicateMail?.id) {
       await throwError(
         `해당 메일로 가입된 아이디가 있습니다.\n(ID: ${checkDuplicateMail.id})`,
-        HTTP_CODE.INTERNAL_ERROR
+        HTTP_CODE.CONFLICT
       )
     }
     const hashedValue = crypto.randomBytes(82).toString('hex').substr(24, 6)

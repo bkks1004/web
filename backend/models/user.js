@@ -8,7 +8,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     password: {
       type: DataTypes.STRING(60),
-      allowNull: false
+      allowNull: true
     },
     email: {
       type: DataTypes.STRING(45),
@@ -45,6 +45,14 @@ module.exports = function(sequelize, DataTypes) {
     },
     refresh_token: {
       type: DataTypes.STRING(250),
+      allowNull: true
+    },
+    sns_type: {
+      type: DataTypes.STRING(45),
+      allowNull: true
+    },
+    sns_connect_date: {
+      type: DataTypes.DATE,
       allowNull: true
     }
   }, {

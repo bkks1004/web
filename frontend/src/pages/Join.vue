@@ -260,7 +260,7 @@
 
 <script>
 import { defineComponent, reactive, ref } from 'vue'
-import { axios } from 'src/boot/axios'
+import axios from 'axios'
 import { useRouter } from 'vue-router'
 
 export default defineComponent({
@@ -358,7 +358,7 @@ export default defineComponent({
             throw new Error('인증코드을 확인해주세요.')
           }
           axios
-            .post('web-server/user', data)
+            .post('/web-server/user/join', data)
             .then(res => {
               alert(`아이디가 생성되었습니다.\nID: ${res.data.id}`)
               router.push({ path: '/login' })
