@@ -58,6 +58,7 @@ exports.registSnsUser = async (req, res) => {
       t
     )
     let createdUserInfo
+    let msg
     if (!checkDuplicateMail.id) {
       const userObject = {
         id: req.body.id,
@@ -72,14 +73,21 @@ exports.registSnsUser = async (req, res) => {
       createdUserInfo = await models.user.create(userObject, {
         transaction: t,
       })
+      msg = '아이디가 생성되었습니다.'
     } else {
-      createdUserInfo = await userModules.getUserIdFromEmail(email, t)
+      createdUserInfo = await userModules.getUserIdFromEmail(req.body.email, t)
+      msg = 'sns와 연결되었습니다.'
     }
     await userModules.createSnsUserInfo(createdUserInfo.id, req.body.snsType, t)
 
     await t.commit()
 
-    return regularResponse({}, 'OK', res, HTTP_CODE.CREATED)
+    return regularResponse(
+      { createdUserInfo, msg },
+      'OK',
+      res,
+      HTTP_CODE.CREATED
+    )
   } catch (err) {
     console.log(err)
     return errorResponse(
@@ -124,6 +132,22 @@ exports.login = async (req, res, next) => {
     )
   } catch (err) {
     return errorResponse('user.con.login', err, res, HTTP_CODE.BAD_REQUEST)
+  }
+}
+
+exports.updateUser = async (req, res) => {
+  const t = await models.sequelize.transaction()
+  try {
+    const temp = await userModules.updateUserInfo(
+      req.body.updateObject,
+      req.body.id,
+      t
+    )
+    await t.commit()
+
+    return regularResponse({}, 'OK', res, HTTP_CODE.OK)
+  } catch (err) {
+    return errorResponse('user.con.updateUser', err, res, HTTP_CODE.BAD_REQUEST)
   }
 }
 

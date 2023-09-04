@@ -1,5 +1,5 @@
 <template>
-  <div>router</div>
+  <div></div>
 </template>
 <script>
 import { defineComponent, reactive, onMounted } from 'vue'
@@ -20,8 +20,8 @@ export default defineComponent({
       callbackUrl: 'http://localhost:9000/login/naver',
       code: route.query.code,
       states: route.query.state, // csrf 공격을 방지하기 위해 애플리케이션에서 생성한 상태 토큰값으로 URL 인코딩을 적용한 값을 사용
-      access_token: '', // 발급받은 access_token 저장을 위한 변수
-      refresh_token: '', // 발급받은 refresh_token 저장을 위한 변수
+      accessToken: '', // 발급받은 accessToken 저장을 위한 변수
+      refreshToken: '', // 발급받은 refreshToken 저장을 위한 변수
       state: 'test',
       id: '',
       email: '',
@@ -33,33 +33,23 @@ export default defineComponent({
     })
 
     const naverCallback = async () => {
-      console.log('route.query.code => ', route.query.code) // 파라미터로 전달받은 code값
-      console.log('route.query.states => ', route.query.state) // 파라미터로 전달받은 state값
-
       const url = `/oauth2.0/token?grant_type=authorization_code&client_id=${state.naverClientId}&client_secret=${state.clientSecret}&code=${state.code}&state=${state.states}`
       const headers = {
         'X-Naver-Client-Id': state.naverClientId,
         'X-Naver-Client-Secret': state.clientSecret,
       }
       const { data } = await axios.get(url, { headers })
-      console.log('data => ', data)
-
-      console.log('data.access_token => ', data.access_token)
-      state.access_token = data.access_token
-
-      console.log('data.refresh_token => ', data.refresh_token)
-      state.refresh_token = data.refresh_token
+      state.accessToken = data.access_token
+      state.refreshToken = data.refresh_token
 
       naverUserInfo()
     }
 
     const naverUserInfo = async () => {
       const url = `/v1/nid/me`
-      const header = `Bearer ${state.access_token}`
+      const header = `Bearer ${state.accessToken}`
       const headers = { Authorization: header }
-      console.log('headers => ', headers)
       const { data } = await axios.get(url, { headers })
-      console.log('*****naverUserInfo data***** => ', data)
 
       // 변수에 값 넣기
       state.id = data.response.id
@@ -70,10 +60,10 @@ export default defineComponent({
       state.yearOfBirth = data.response.birthyear
       state.birthday = data.response.birthday
 
-      naverUseridCheck(data)
+      naverUseridCheck()
     }
 
-    const naverUseridCheck = async data => {
+    const naverUseridCheck = async () => {
       const config = {
         method: 'get',
         url: '/web-server/user/sns/check-id',
@@ -92,14 +82,14 @@ export default defineComponent({
           alert(err.response.data.error.message)
         })
       if (result === 'exist') {
-        naverUserJoin()
-      } else if (result === 'not exist') {
         naverUserLogin()
+      } else if (result === 'not exist') {
+        naverUserJoin()
       }
     }
 
     const naverUserJoin = async () => {
-      const url = `/web-server/user/sns/join`
+      const url = '/web-server/user/sns/join'
       const headers = { 'Content-Type': 'application/json' }
       const body = {
         id: state.id,
@@ -114,31 +104,42 @@ export default defineComponent({
       await axios
         .post(url, body, { headers })
         .then(res => {
-          alert(`아이디가 생성되었습니다.`)
-          naverUserLogin()
+          console.log(`${res.data.msg}`)
+          naverUserLogin(res.data.createdUserInfo)
         })
         .catch(err => {
           alert(err.response.data.error.message)
         })
     }
 
-    const naverUserLogin = async () => {
-      console.log('@@@@@@@@@@@@@@네이버로그인!!!!!!!!!!!!!!!!!!')
-      // const url = `/ROOT/api/member/login.json`;
-      //   const headers = { "Content-Type": "application/json" };
-      //   const body = {
-      //           userid: state.userid,
-      //           userpw: state.userpw,
-      //           role: 'CUSTOMER'
-      //       }
-      //   const { data } = await axios.post(url, body, { headers });
-      //   console.log(data);
-      //       if (data.status === 200) {
-      //           sessionStorage.setItem("token", data.result);
-      //           store.commit('setLogged', true);
-      //           store.commit('setCounter');
-      //           router.push({ path: '/' });
-      //       }
+    const naverUserLogin = async userInfo => {
+      const updateObject = {
+        refresh_token: state.refreshToken,
+      }
+      const config = {
+        method: 'put',
+        url: '/web-server/user',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        data: { id: userInfo.id, updateObject },
+      }
+
+      await axios(config)
+        .then(res => {
+          if (res.data.result === 'OK') {
+            userStore.accessToken = state.accessToken
+            userStore.refreshToken = state.refreshToken
+            userStore.userName = state.name
+            router.push({ path: '/' })
+          }
+        })
+        .catch(err => {
+          userStore.accessToken = null
+          userStore.refreshToken = null
+          userStore.userName = null
+          alert(err.response.data.error.message)
+        })
     }
 
     onMounted(() => {
