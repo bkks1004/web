@@ -159,7 +159,7 @@ exports.checkSnsId = async (req, res, next) => {
     await t.commit()
 
     if (snsInfo) return regularResponse({ snsInfo }, 'exist', res, HTTP_CODE.OK)
-    else return regularResponse({}, 'not exsit', res, HTTP_CODE.OK)
+    else return regularResponse({}, 'not exist', res, HTTP_CODE.OK)
   } catch (err) {
     return errorResponse('user.con.checkSnsId', err, res, HTTP_CODE.BAD_REQUEST)
   }
