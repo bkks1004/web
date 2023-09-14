@@ -15,14 +15,9 @@ export default defineComponent({
     const userStore = useUsersStore()
 
     const state = reactive({
-      naverClientId: 'ydDzQxlGNx737EQ1cQIe',
-      clientSecret: 'MBSuuk90jn',
-      callbackUrl: 'http://localhost:9000/login/naver',
       code: route.query.code,
-      states: route.query.state, // csrf 공격을 방지하기 위해 애플리케이션에서 생성한 상태 토큰값으로 URL 인코딩을 적용한 값을 사용
       accessToken: '', // 발급받은 accessToken 저장을 위한 변수
       refreshToken: '', // 발급받은 refreshToken 저장을 위한 변수
-      state: 'test',
       id: '',
       email: '',
       name: '',
@@ -33,10 +28,10 @@ export default defineComponent({
     })
 
     const naverCallback = async () => {
-      const url = `/oauth2.0/token?grant_type=authorization_code&client_id=${state.naverClientId}&client_secret=${state.clientSecret}&code=${state.code}&state=${state.states}`
+      const url = `/oauth2.0/token?grant_type=authorization_code&client_id=${process.env.NAVER_CLIENT_ID}&client_secret=${process.env.NAVER_CLIENT_SECERT}&code=${state.code}&state=${process.env.NAVER_STATE}`
       const headers = {
-        'X-Naver-Client-Id': state.naverClientId,
-        'X-Naver-Client-Secret': state.clientSecret,
+        'X-Naver-Client-Id': process.env.NAVER_CLIENT_ID,
+        'X-Naver-Client-Secret': process.env.NAVER_CLIENT_SECERT,
       }
       const { data } = await axios.get(url, { headers })
       state.accessToken = data.access_token

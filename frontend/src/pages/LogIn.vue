@@ -94,9 +94,6 @@ export default defineComponent({
       loggedIn: false,
       id: null,
       password: null,
-      naverClientId: 'ydDzQxlGNx737EQ1cQIe',
-      callbackUrl: 'http://localhost:9000/login/naver',
-      state: 'test',
     })
     const userStore = useUsersStore()
     const login = async () => {
@@ -113,7 +110,7 @@ export default defineComponent({
     }
 
     const naverLogin = () => {
-      const url = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${state.naverClientId}&state=${state.state}&redirect_uri=${state.callbackUrl}`
+      const url = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${process.env.NAVER_CLIENT_ID}&state=${process.env.NAVER_STATE}&redirect_uri=${process.env.NAVER_CALLBACK_URL}`
       window.location.href = url
     }
 
