@@ -11,12 +11,13 @@ const PUBLIC_KEY = crypto.createPublicKey({
   format: 'jwk',
   key: JWT_PUBLIC,
 })
+const userModules = require('../user')
 
 module.exports = {
   createAccessToken: signObj => {
     return jwt.sign(signObj, PRIVATE_KEY, {
-      expiresIn: authConfig.tokenSetting.defaultExpiredTime,
       algorithm: 'ES256',
+      expiresIn: authConfig.tokenSetting.defaultExpiredTime,
     })
   },
   verifyAccessToken: token => {
@@ -36,12 +37,21 @@ module.exports = {
   },
   createRefreshToken: () => {
     return jwt.sign({}, PRIVATE_KEY, {
-      expiresIn: authConfig.tokenSetting.refreshTokenExpiredTime,
       algorithm: 'ES256',
+      expiresIn: authConfig.tokenSetting.refreshTokenExpiredTime,
     })
   },
-  verifyRefreshToken: (token, id) => {
+  verifyRefreshToken: async (token, id) => {
     try {
-    } catch (error) {}
+      const data = await userModules.getUserRefreshToken(id)
+      if (token === data.refresh_token) {
+        jwt.verify(token, PUBLIC_KEY)
+        return true
+      } else {
+        return false
+      }
+    } catch (error) {
+      return false
+    }
   },
 }

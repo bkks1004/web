@@ -6,6 +6,7 @@ export const useUsersStore = defineStore('users', {
     accessToken: null,
     refreshToken: null,
     userName: null,
+    id: null,
   }),
 
   getters: {},
@@ -19,12 +20,17 @@ export const useUsersStore = defineStore('users', {
             this.accessToken = res.data.accessToken
             this.refreshToken = res.data.refreshToken
             this.userName = res.data.userName
+            this.id = res.data.id
           })
           .catch(err => {
             alert(err.response.data.error.message)
           })
       } catch (error) {
         console.log('error', error)
+        this.accessToken = null
+        this.refreshToken = null
+        this.userName = null
+        this.id = null
       }
     },
   },

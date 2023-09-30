@@ -9,7 +9,9 @@
           무얼 만들까??
         </q-toolbar-title>
         <div v-if="userName">
-          안녕하세요. {{ userName }}님 │
+          안녕하세요.
+          <router-link to="/profile">{{ userName }}</router-link
+          >님 │
           <span style="cursor: pointer" @click="logOut">로그아웃</span>
         </div>
         <div v-else>

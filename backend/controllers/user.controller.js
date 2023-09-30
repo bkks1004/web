@@ -13,6 +13,26 @@ const authManager = require('../modules/managers/authManager')
 const mailManager = require('../modules/managers/mailManager')
 const userModules = require('../modules/user')
 
+exports.getUserInfo = async (req, res, next) => {
+  const t = await models.sequelize.transaction()
+  try {
+    const userInfo = await userModules.getUserInfo(req.query.id, t)
+    delete userInfo.dataValues.password
+
+    await t.commit()
+
+    return regularResponse({}, userInfo, res, HTTP_CODE.OK)
+  } catch (err) {
+    console.log(err)
+    return errorResponse(
+      'user.con.getUserInfo',
+      err,
+      res,
+      HTTP_CODE.BAD_REQUEST
+    )
+  }
+}
+
 exports.registUser = async (req, res, next) => {
   const t = await models.sequelize.transaction()
   try {
@@ -125,7 +145,7 @@ exports.login = async (req, res, next) => {
     await t.commit()
 
     return regularResponse(
-      { accessToken, refreshToken, userName: userInfo.name },
+      { accessToken, refreshToken, userName: userInfo.name, id: userInfo.id },
       'OK',
       res,
       HTTP_CODE.OK

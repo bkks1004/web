@@ -20,6 +20,15 @@ exports.getUserInfo = async (userId, t) => {
   })
 }
 
+exports.getUserRefreshToken = async userId => {
+  return await models.user.findOne({
+    attributes: ['refresh_token'],
+    where: {
+      id: userId,
+    },
+  })
+}
+
 exports.getUserIdFromEmail = async (email, t) => {
   return await models.user.findOne({
     attributes: ['id'],
