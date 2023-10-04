@@ -2,7 +2,8 @@ const { HTTP_CODE } = require('../constants/http')
 
 exports.regularResponse = (obj, result, res, httpCode) => {
   obj.result = result
-  // obj.token = res.local.
+  obj.accessToken = res.locals.accessToken
+
   return res.status(httpCode).json(obj)
 }
 
@@ -10,7 +11,7 @@ exports.errorResponse = (module, errorMsg, res, httpCode) => {
   console.error('[' + module + ']', errorMsg)
   return res.status(httpCode).json({
     error: errorMsg,
-    // token: res.local.
+    accessToken: res.locals.accessToken,
   })
 }
 
@@ -29,6 +30,6 @@ exports.rollbackAndResponse = async (module, err, res, t) => {
   console.error('[' + module + ']', err)
   return res.status(httpCode).json({
     error: message,
-    // token: res.local.
+    accessToken: res.locals.accessToken,
   })
 }

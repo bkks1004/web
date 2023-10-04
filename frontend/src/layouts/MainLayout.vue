@@ -153,7 +153,6 @@ export default defineComponent({
 
     const logOut = () => {
       userStore.accessToken = null
-      userStore.refreshToken = null
       userStore.userName = null
     }
     return {

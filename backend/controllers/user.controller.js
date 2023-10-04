@@ -137,16 +137,20 @@ exports.login = async (req, res, next) => {
     const signObj = {
       id,
     }
-    const accessToken = authManager.createAccessToken(signObj)
-    const refreshToken = authManager.createRefreshToken(signObj)
+    res.locals.accessToken = authManager.createAccessToken(signObj)
+    const refreshToken = authManager.createRefreshToken()
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: true,
+    })
 
     await userModules.updateUserInfo({ refresh_token: refreshToken }, id, t)
 
     await t.commit()
 
     return regularResponse(
-      { accessToken, refreshToken, userName: userInfo.name, id: userInfo.id },
-      'OK',
+      { userName: userInfo.name, id: userInfo.id },
+      'Login Success',
       res,
       HTTP_CODE.OK
     )

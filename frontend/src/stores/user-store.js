@@ -4,7 +4,6 @@ import { axios } from '../boot/axios'
 export const useUsersStore = defineStore('users', {
   state: () => ({
     accessToken: null,
-    refreshToken: null,
     userName: null,
     id: null,
   }),
@@ -18,7 +17,6 @@ export const useUsersStore = defineStore('users', {
           .post('web-server/user/login', loginData)
           .then(res => {
             this.accessToken = res.data.accessToken
-            this.refreshToken = res.data.refreshToken
             this.userName = res.data.userName
             this.id = res.data.id
           })
@@ -28,7 +26,6 @@ export const useUsersStore = defineStore('users', {
       } catch (error) {
         console.log('error', error)
         this.accessToken = null
-        this.refreshToken = null
         this.userName = null
         this.id = null
       }
