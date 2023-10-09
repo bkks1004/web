@@ -142,6 +142,8 @@ exports.login = async (req, res, next) => {
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: true,
+      maxAge: 14 * 24 * 60 * 60 * 1000,
+      // expires: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
     })
 
     await userModules.updateUserInfo({ refresh_token: refreshToken }, id, t)

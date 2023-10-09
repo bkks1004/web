@@ -1,10 +1,13 @@
 const express = require('express')
 const router = express.Router()
+const { checkAccessToken, checkRefreshToken } = require('../middlewares/auth')
 const userController = require('../controllers/user.controller')
 
-router.get('/', userController.getUserInfo)
+router.get('/', checkAccessToken, userController.getUserInfo)
 
 router.put('/', userController.updateUser)
+
+router.get('/check-refesh-token', checkRefreshToken)
 
 router.post('/join', userController.registUser)
 

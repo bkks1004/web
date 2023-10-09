@@ -30,6 +30,37 @@ export const useUsersStore = defineStore('users', {
         this.id = null
       }
     },
+    async checkRefreshToken() {
+      try {
+        const config = {
+          method: 'get',
+          url: '/web-server/user/check-refesh-token',
+          headers: {
+            Authorization: `Bearer ${this.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+          params: { id: this.id },
+        }
+        await axios(config)
+          .then(res => {
+            console.log(
+              'access token 검증 실패 후 refresh token 검증 성공',
+              res
+            )
+          })
+          .catch(err => {
+            console.log('err', err)
+            this.accessToken = null
+            this.userName = null
+            this.id = null
+          })
+      } catch (error) {
+        console.log('error', error)
+        this.accessToken = null
+        this.userName = null
+        this.id = null
+      }
+    },
   },
   persist: true,
 })
