@@ -1,6 +1,7 @@
 const SequelizeAuto = require('sequelize-auto')
 const env = process.env.NODE_ENV || 'development'
 const dbConfig = require('./config/config')[env]
+// 이거 하면 init-models도 수정 됨.
 const auto = new SequelizeAuto(
   dbConfig.database,
   dbConfig.username,

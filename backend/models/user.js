@@ -30,7 +30,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     year_of_birth: {
       type: DataTypes.STRING(4),
-      allowNull: false,
+      allowNull: true,
       comment: "연(YYYY)"
     },
     birthday: {
@@ -47,13 +47,10 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(250),
       allowNull: true
     },
-    sns_type: {
-      type: DataTypes.STRING(45),
-      allowNull: true
-    },
-    sns_connect_date: {
-      type: DataTypes.DATE,
-      allowNull: true
+    site_id: {
+      type: DataTypes.TINYINT,
+      allowNull: false,
+      defaultValue: 1
     }
   }, {
     sequelize,

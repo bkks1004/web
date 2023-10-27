@@ -50,6 +50,7 @@ exports.registUser = async (req, res, next) => {
       sex: req.body.sex,
       phone_number: req.body.phoneNumber,
       email: req.body.email,
+      site: true,
     }
 
     const createdUserInfo = await models.user.create(userObject, {

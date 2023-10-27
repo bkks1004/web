@@ -12,6 +12,7 @@ exports.getUserInfo = async (userId, t) => {
       'year_of_birth',
       'birthday',
       'create_date',
+      'site_id',
     ],
     where: {
       id: userId,
