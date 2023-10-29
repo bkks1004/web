@@ -16,15 +16,6 @@ export default defineComponent({
 
     const state = reactive({
       code: route.query.code,
-      accessToken: '', // 발급받은 accessToken 저장을 위한 변수
-      refreshToken: '', // 발급받은 refreshToken 저장을 위한 변수
-      id: '',
-      email: '',
-      name: '',
-      sex: '',
-      phoneNumber: '',
-      yearOfBirth: '',
-      birthday: '',
     })
 
     const naverCallback = async () => {
