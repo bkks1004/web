@@ -1,10 +1,5 @@
 <template>
   <q-page class="flex flex-center">
-    <!-- <img
-        alt="Quasar logo"
-        src="~assets/quasar-logo-vertical.svg"
-        style="width: 200px; height: 200px"
-      > -->
     <q-card style="height: 600px; width: 400px">
       <q-form>
         <h6 class="text-center q-mb-sm" style="font-family: 'ONE-Mobile-Title'">
@@ -79,6 +74,7 @@
         <div class="basic-row justify-center text-center">
           <img
             src="../assets/naver-logo-button.png"
+            alt="네이버 로고"
             width="140"
             height="37"
             style="cursor: pointer; margin-right: 25px"
@@ -86,6 +82,7 @@
           />
           <img
             src="../assets/kakao_login_medium_narrow.png"
+            alt="카카오 로고"
             width="140"
             height="37"
             style="cursor: pointer"
@@ -134,6 +131,10 @@ export default defineComponent({
       const url = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${process.env.NAVER_CLIENT_ID}&state=${process.env.NAVER_STATE}&redirect_uri=${process.env.NAVER_CALLBACK_URL}`
       window.location.href = url
     }
+    const kakaoLogin = () => {
+      const url = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${process.env.KAKAO_CLIENT_ID}&redirect_uri=${process.env.KAKAO_REDIRECT_URL}` // &scope=account_email,gender,age_range,birthday`
+      window.location.href = url
+    }
 
     return {
       isPwd,
@@ -142,6 +143,7 @@ export default defineComponent({
       join,
       focusPassword,
       naverLogin,
+      kakaoLogin,
     }
   },
 })

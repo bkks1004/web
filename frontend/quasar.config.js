@@ -93,16 +93,6 @@ module.exports = configure((/* ctx */) => ({
         changeOrigin: true,
         rewrite: path => path.replace(/^\/web-server/, ''),
       },
-      '/oauth2.0': {
-        target: 'https://nid.naver.com/',
-        changeOrigin: true,
-        logLevel: 'debug',
-      },
-      '/v1': {
-        target: 'https://openapi.naver.com/',
-        changeOrigin: true,
-        logLevel: 'debug',
-      },
     },
   },
 

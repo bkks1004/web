@@ -12,7 +12,8 @@ module.exports = function(sequelize, DataTypes) {
     },
     sns_type: {
       type: DataTypes.STRING(45),
-      allowNull: true
+      allowNull: false,
+      primaryKey: true
     },
     sns_connect_date: {
       type: DataTypes.DATE,
@@ -30,6 +31,7 @@ module.exports = function(sequelize, DataTypes) {
         using: "BTREE",
         fields: [
           { name: "sns_id" },
+          { name: "sns_type" },
         ]
       },
       {

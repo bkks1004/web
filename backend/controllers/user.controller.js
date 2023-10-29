@@ -305,3 +305,110 @@ const getNaverUserInfo = async accessToken => {
   const { data } = await axios.get(url, { headers })
   return data
 }
+
+const getKakaoUserInfo = async accessToken => {
+  const url = 'https://kapi.kakao.com/v2/user/me'
+  const headers = { Authorization: `Bearer ${accessToken}` }
+  const { data } = await axios.get(url, { headers })
+  return data
+}
+
+exports.getKakaoToken = async (req, res, next) => {
+  const t = await models.sequelize.transaction()
+  try {
+    const { data } = await axios({
+      method: 'post',
+      url: 'https://kauth.kakao.com/oauth/token',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
+      },
+      data: {
+        grant_type: 'authorization_code',
+        client_id: dbConfig.kakao.clientId,
+        redirect_uri: dbConfig.kakao.redirectUrl,
+        code: req.query.code,
+        client_secret: dbConfig.kakao.clientSecret,
+      },
+    })
+
+    if (!data.access_token) {
+      return errorResponse(
+        'user.con.getKakaoToken',
+        'Can not get token',
+        res,
+        HTTP_CODE.UNAUTHORIZED
+      )
+    }
+    const kakaoUserInfo = await getKakaoUserInfo(data.access_token)
+    const siteUserInfo = await userModules.getUserIdFromEmail(
+      kakaoUserInfo.kakao_account.email,
+      t
+    )
+    let userInfo = {
+      id: null,
+      name: null,
+    }
+    if (siteUserInfo) {
+      const snsInfo = await userModules.getSnsUserInfo(
+        siteUserInfo.id,
+        'kakao',
+        t
+      )
+      if (!snsInfo) {
+        const test = await userModules.createSnsUserInfo(
+          siteUserInfo.id,
+          'kakao',
+          t
+        )
+      }
+      userInfo = {
+        id: siteUserInfo.id,
+        name: siteUserInfo.name,
+      }
+    } else {
+      // 첫 이용자
+      const userObject = {
+        id: kakaoUserInfo.id,
+        name: kakaoUserInfo.kakao_account.profile.nickname,
+        birthday: kakaoUserInfo.kakao_account.birthday,
+        sex: kakaoUserInfo.kakao_account.gender === 'male' ? 'M' : 'F',
+        email: kakaoUserInfo.kakao_account.email,
+        site: false,
+      }
+      const createdUserInfo = await userModules.createUserInfo(userObject, t)
+
+      await userModules.createSnsUserInfo(createdUserInfo[0].id, 'kakao', t)
+      userInfo = {
+        id: createdUserInfo[0].id,
+        name: createdUserInfo[0].name,
+      }
+    }
+    // 토큰 저장, 로그인
+    const signObj = {
+      id: userInfo.id,
+    }
+    res.locals.accessToken = authManager.createAccessToken(signObj)
+    const refreshToken = authManager.createRefreshToken()
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      maxAge: 14 * 24 * 60 * 60 * 1000,
+    })
+    await userModules.updateUserInfo(
+      { refresh_token: refreshToken },
+      userInfo.id,
+      t
+    )
+
+    await t.commit()
+
+    return regularResponse(userInfo, 'ok', res, HTTP_CODE.OK)
+  } catch (err) {
+    return errorResponse(
+      'user.con.getKakaoToken',
+      err,
+      res,
+      HTTP_CODE.BAD_REQUEST
+    )
+  }
+}

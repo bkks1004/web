@@ -21,4 +21,6 @@ router.get('/sns/check-id', userController.checkSnsId)
 
 router.get('/oauth/naver', userController.getNaverToken)
 
+router.get('/oauth/kakao', userController.getKakaoToken)
+
 module.exports = router

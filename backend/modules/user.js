@@ -78,7 +78,7 @@ exports.createUserInfo = async (attributes, t) => {
 }
 
 exports.createSnsUserInfo = async (id, snsType, t) => {
-  return await models.snsInfo.upsert(
+  return await models.snsInfo.create(
     {
       sns_id: id,
       sns_type: snsType,
