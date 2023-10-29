@@ -19,6 +19,6 @@ router.post('/email-auth', userController.sendMailAuth)
 
 router.get('/sns/check-id', userController.checkSnsId)
 
-router.post('/sns/join', userController.registSnsUser)
+router.get('/oauth/naver', userController.getNaverToken)
 
 module.exports = router

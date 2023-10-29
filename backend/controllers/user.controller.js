@@ -1,4 +1,6 @@
+const axios = require('axios')
 const models = require('../models')
+const dbConfig = require('../config/config')
 const {
   regularResponse,
   errorResponse,
@@ -46,16 +48,14 @@ exports.registUser = async (req, res, next) => {
       password: bcrypt.hashSync(req.body.password, BCRYPT_ROUND),
       name: req.body.name,
       birthday: req.body.birthday.substr(5),
-      year_of_birth: req.body.birthday.substr(0, 4),
+      yearOfBirth: req.body.birthday.substr(0, 4),
       sex: req.body.sex,
-      phone_number: req.body.phoneNumber,
+      phoneNumber: req.body.phoneNumber,
       email: req.body.email,
       site: true,
     }
 
-    const createdUserInfo = await models.user.create(userObject, {
-      transaction: t,
-    })
+    const createdUserInfo = await userModules.createUserInfo(userObject, t)
 
     await t.commit()
 
@@ -68,55 +68,6 @@ exports.registUser = async (req, res, next) => {
   } catch (err) {
     console.log(err)
     return errorResponse('user.con.registUser', err, res, HTTP_CODE.BAD_REQUEST)
-  }
-}
-
-exports.registSnsUser = async (req, res) => {
-  const t = await models.sequelize.transaction()
-  try {
-    const checkDuplicateMail = await userModules.getUserIdFromEmail(
-      req.body.email,
-      t
-    )
-    let createdUserInfo
-    let msg
-    if (!checkDuplicateMail.id) {
-      const userObject = {
-        id: req.body.id,
-        name: req.body.name,
-        birthday: req.body.birthday.substr(5),
-        year_of_birth: req.body.birthday.substr(0, 4),
-        sex: req.body.sex,
-        phone_number: req.body.phoneNumber,
-        email: req.body.email,
-      }
-
-      createdUserInfo = await models.user.create(userObject, {
-        transaction: t,
-      })
-      msg = '아이디가 생성되었습니다.'
-    } else {
-      createdUserInfo = await userModules.getUserIdFromEmail(req.body.email, t)
-      msg = 'sns와 연결되었습니다.'
-    }
-    await userModules.createSnsUserInfo(createdUserInfo.id, req.body.snsType, t)
-
-    await t.commit()
-
-    return regularResponse(
-      { createdUserInfo, msg },
-      'OK',
-      res,
-      HTTP_CODE.CREATED
-    )
-  } catch (err) {
-    console.log(err)
-    return errorResponse(
-      'user.con.registSnsUser',
-      err,
-      res,
-      HTTP_CODE.BAD_REQUEST
-    )
   }
 }
 
@@ -250,4 +201,107 @@ exports.sendMailAuth = async (req, res, next) => {
   } catch (err) {
     return errorResponse('user.con.createUser', err, res, HTTP_CODE.BAD_REQUEST)
   }
+}
+
+exports.getNaverToken = async (req, res, next) => {
+  const t = await models.sequelize.transaction()
+  try {
+    const { data } = await axios({
+      method: 'get',
+      url: 'https://nid.naver.com/oauth2.0/token', //`https://nid.naver.com/oauth2.0/token?grant_type=authorization_code&client_id=${dbConfig.naver.clientId}&client_secret=${dbConfig.naver.clientSecret}&code=${req.query.code}&state=${dbConfig.naver.state}`,
+      params: {
+        grant_type: 'authorization_code',
+        client_id: dbConfig.naver.clientId,
+        code: req.query.code,
+        client_secret: dbConfig.naver.clientSecret,
+        state: dbConfig.naver.state,
+      },
+    })
+
+    if (!data.access_token) {
+      return errorResponse(
+        'user.con.getNaverToken',
+        'Can not get token',
+        res,
+        HTTP_CODE.UNAUTHORIZED
+      )
+    }
+    const naverUserInfo = await getNaverUserInfo(data.access_token)
+    const siteUserInfo = await userModules.getUserIdFromEmail(
+      naverUserInfo.response.email,
+      t
+    )
+    let userInfo = {
+      id: null,
+      name: null,
+    }
+    if (siteUserInfo) {
+      const snsInfo = await userModules.getSnsUserInfo(
+        siteUserInfo.id,
+        'naver',
+        t
+      )
+      if (!snsInfo) {
+        await userModules.createSnsUserInfo(siteUserInfo.id, 'naver', t)
+      }
+      userInfo = {
+        id: siteUserInfo.id,
+        name: siteUserInfo.name,
+      }
+    } else {
+      // 첫 이용자
+      const userObject = {
+        id: naverUserInfo.response.id,
+        name: naverUserInfo.response.name,
+        birthday: naverUserInfo.response.birthday,
+        yearOfBirth: naverUserInfo.response.birthyear,
+        sex: naverUserInfo.response.gender,
+        phone_number: naverUserInfo.response.mobile.replaceAll('-', ''),
+        email: naverUserInfo.response.email,
+        site: false,
+      }
+      const createdUserInfo = await userModules.createUserInfo(userObject, t)
+
+      await userModules.createSnsUserInfo(createdUserInfo[0].id, 'naver', t)
+      userInfo = {
+        id: createdUserInfo[0].id,
+        name: createdUserInfo[0].name,
+      }
+    }
+
+    // 토큰 저장, 로그인
+    const signObj = {
+      id: userInfo.id,
+    }
+    res.locals.accessToken = authManager.createAccessToken(signObj)
+    const refreshToken = authManager.createRefreshToken()
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      maxAge: 14 * 24 * 60 * 60 * 1000,
+    })
+    await userModules.updateUserInfo(
+      { refresh_token: refreshToken },
+      userInfo.id,
+      t
+    )
+
+    await t.commit()
+
+    return regularResponse(userInfo, 'ok', res, HTTP_CODE.OK)
+  } catch (err) {
+    return errorResponse(
+      'user.con.getNaverToken',
+      err,
+      res,
+      HTTP_CODE.BAD_REQUEST
+    )
+  }
+}
+
+const getNaverUserInfo = async accessToken => {
+  const url = 'https://openapi.naver.com/v1/nid/me'
+  const headers = { Authorization: `Bearer ${accessToken}` }
+  const { data } = await axios.get(url, { headers })
+  return data
 }

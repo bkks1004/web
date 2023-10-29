@@ -32,7 +32,7 @@ exports.getUserRefreshToken = async userId => {
 
 exports.getUserIdFromEmail = async (email, t) => {
   return await models.user.findOne({
-    attributes: ['id'],
+    attributes: ['id', 'name', 'site_id'],
     where: {
       email,
     },
@@ -41,15 +41,12 @@ exports.getUserIdFromEmail = async (email, t) => {
 }
 
 exports.updateUserInfo = async (updateAttributes, id, t) => {
-  return await models.user.update(
-    updateAttributes,
-    {
-      where: {
-        id,
-      },
+  return await models.user.update(updateAttributes, {
+    where: {
+      id,
     },
-    { transaction: t }
-  )
+    transaction: t,
+  })
 }
 
 exports.getSnsUserInfo = async (id, snsType, t) => {
@@ -61,6 +58,23 @@ exports.getSnsUserInfo = async (id, snsType, t) => {
     },
     transaction: t,
   })
+}
+
+exports.createUserInfo = async (attributes, t) => {
+  return await models.user.upsert(
+    {
+      id: attributes.id,
+      password: attributes?.password,
+      name: attributes.name,
+      birthday: attributes.birthday,
+      year_of_birth: attributes.yearOfBirth,
+      sex: attributes.sex,
+      phone_number: attributes.phoneNumber,
+      email: attributes.email,
+      site_id: attributes.site,
+    },
+    { transaction: t }
+  )
 }
 
 exports.createSnsUserInfo = async (id, snsType, t) => {
